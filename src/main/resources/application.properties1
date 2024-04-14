@@ -1,4 +1,0 @@
-spring.datasource.url=jdbc:surrealdb://localhost:8000/test
-spring.datasource.username=root
-spring.datasource.password=root
-spring.datasource.driver-class-name=com.surrealdb.jdbc.SurrealJDBCDriver
