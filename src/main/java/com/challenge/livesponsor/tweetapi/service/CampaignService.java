@@ -31,6 +31,7 @@ public class CampaignService implements ICampaignService{
 
     @Override
     public void save(CampaignDTO campaign) {
+
         campaign.setActive(true);
         repository.save(mapper.toEntity(campaign));
     }
@@ -38,7 +39,7 @@ public class CampaignService implements ICampaignService{
     @Override
     public List<CampaignDTO> update(CampaignDTO campaign) {
 
-        Campaign oldCampaignEntity = repository.findOneBy("id", campaign.getId());
+        Campaign oldCampaignEntity = repository.findOneBy("slogan", campaign.getSlogan());
         Campaign newCampaignEntity = mapper.toEntity(campaign);
         newCampaignEntity.setId(oldCampaignEntity.getId());
 

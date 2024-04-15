@@ -7,7 +7,7 @@ import java.util.List;
 public interface ITweetService {
     List<TweetDTO> getAll();
     TweetDTO findOneById(String value);
-    void save(TweetDTO tweet);
+    void save(TweetDTO tweet, String email);
     List<TweetDTO> update(TweetDTO tweet);
     void delete(String id);
 }

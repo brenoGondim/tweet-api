@@ -22,6 +22,15 @@ public class GenericRepository<T> {
         return driver.select(thing, (Class<T>) genericClass);
     }
 
+    public List<T> findAllActive() {
+        var genericClass = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        String query = "SELECT * FROM "+ thing +" WHERE active = true";
+
+        List<QueryResult<T>> queryResult = driver.query(query, Map.of(), (Class<T>) genericClass);
+        if (queryResult.get(0).getResult().size() == 0) return null;
+        return queryResult.get(0).getResult();
+    }
+
     public T findOneBy(String column, String value) {
         var genericClass = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 

@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TweetDTO {
     private String payload;
-    private LocalDateTime postDate;
+    private LocalDateTime postDate = LocalDateTime.now();
 
     public String getPayload() {
         return payload;

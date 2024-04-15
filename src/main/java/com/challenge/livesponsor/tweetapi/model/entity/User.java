@@ -16,6 +16,7 @@ public class User {
     private String id;
     private String email;
     private String name;
+    private Integer points;
     @OneToMany
     private List<Tweet> tweets;
 
@@ -41,6 +42,14 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
     }
 
     public List<Tweet> getTweets() {

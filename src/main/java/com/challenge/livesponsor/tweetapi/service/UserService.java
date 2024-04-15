@@ -43,7 +43,6 @@ public class UserService implements IUserService{
             throw new AlreadyExistsException();
         }
         repository.save(mapper.toEntity(user));
-
     }
 
     @Override

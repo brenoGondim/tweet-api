@@ -33,7 +33,7 @@ public class CampaignController {
     @PostMapping
     public ResponseEntity<String> save(@RequestBody CampaignDTO campaign) {
         service.save(campaign);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping

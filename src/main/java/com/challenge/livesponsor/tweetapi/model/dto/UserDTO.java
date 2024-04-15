@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 public class UserDTO {
     private String email;
     private String name;
+    private Integer points = 0;
 
     public String getEmail() {
         return email;
@@ -21,5 +22,13 @@ public class UserDTO {
     }
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Integer getPoints() {
+        return points;
+    }
+
+    public void setPoints(Integer points) {
+        this.points = points;
     }
 }
