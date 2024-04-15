@@ -15,12 +15,10 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserMapper mapper;
     private final IUserService service;
 
     @Autowired
-    public UserController(UserMapper mapper, IUserService service) {
-        this.mapper = mapper;
+    public UserController(IUserService service) {
         this.service = service;
     }
 
@@ -28,14 +26,17 @@ public class UserController {
     public ResponseEntity<List<UserDTO>> getAll() {
         return ResponseEntity.ok(service.getAll());
     }
+
     @GetMapping("/id/{id}")
     public ResponseEntity<UserDTO> getById(@PathVariable String id) {
         return ResponseEntity.ok(service.findOneById(id));
     }
+
     @GetMapping("/email/{email}")
     public ResponseEntity<UserDTO> getByEmail(@PathVariable String email) {
         return ResponseEntity.ok(service.findOneByEmail(email));
     }
+
     @PostMapping
     public ResponseEntity<String> save(@RequestBody UserDTO user) {
         try {
@@ -45,10 +46,12 @@ public class UserController {
         }
         return ResponseEntity.ok().build();
     }
+
     @PutMapping
     public ResponseEntity<List<UserDTO>> update(@RequestBody UserDTO user) {
         return ResponseEntity.ok(service.update(user));
     }
+
     @DeleteMapping("/email/{email}")
     public ResponseEntity<UserDTO> delete(@PathVariable String email) {
         service.delete(email);

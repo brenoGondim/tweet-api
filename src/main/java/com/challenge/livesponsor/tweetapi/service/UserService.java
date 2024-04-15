@@ -5,8 +5,6 @@ import com.challenge.livesponsor.tweetapi.model.UserMapper;
 import com.challenge.livesponsor.tweetapi.model.dto.UserDTO;
 import com.challenge.livesponsor.tweetapi.model.entity.User;
 import com.challenge.livesponsor.tweetapi.repository.IUserRepository;
-import org.springframework.beans.BeanUtils;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -62,7 +60,6 @@ public class UserService implements IUserService{
         User userEntity = findOneEntityByEmail(email);
         repository.delete(userEntity.getId());
     }
-
 
     private User findOneEntityByEmail(String email) {
         return repository.findOneBy("email", email);

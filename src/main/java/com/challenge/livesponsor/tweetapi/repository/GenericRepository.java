@@ -25,11 +25,11 @@ public class GenericRepository<T> {
     public T findOneBy(String column, String value) {
         var genericClass = ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
 
-        String query = "SELECT * FROM user WHERE "+ column +" = $param";
+        String query = "SELECT * FROM "+ thing +" WHERE "+ column +" = $param";
         Map<String, String> args = new HashMap<>();
         args.put("param", value);
 
-        List<QueryResult<T>> queryResult= driver.query(query, args, (Class<T>) genericClass);
+        List<QueryResult<T>> queryResult = driver.query(query, args, (Class<T>) genericClass);
         if (queryResult.get(0).getResult().size() == 0) return null;
         return queryResult.get(0).getResult().get(0);
     }
