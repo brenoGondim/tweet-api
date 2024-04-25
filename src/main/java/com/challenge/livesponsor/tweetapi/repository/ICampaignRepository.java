@@ -1,14 +1,14 @@
 package com.challenge.livesponsor.tweetapi.repository;
 
-import com.challenge.livesponsor.tweetapi.model.entity.Campaign;
+import com.challenge.livesponsor.tweetapi.model.campaign.Campaign;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface ICampaignRepository {
-    List<Campaign> findAll();
-    List<Campaign> findAllActive();
-    Campaign findOneBy(String column, String value);
-    void save(Campaign campaign);
-    List<Campaign> update(String id, Campaign entity);
-    void delete(String id);
+
+@Repository
+public interface ICampaignRepository extends JpaRepository<Campaign, Long> {
+    Campaign findOneBySlogan(String slogan);
+    List<Campaign> findAllByActiveTrue();
 }

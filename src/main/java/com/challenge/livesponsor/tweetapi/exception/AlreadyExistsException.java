@@ -1,29 +1,22 @@
 package com.challenge.livesponsor.tweetapi.exception;
 
-import org.springframework.http.HttpStatus;
 
 import java.text.MessageFormat;
 
 public class AlreadyExistsException extends DomainException {
-    private DomainRequest domainRequest;
-
     public AlreadyExistsException() {
-        super(new DomainRequest(HttpStatus.CONFLICT.toString(), "Record already exists"));
+        super("Value already exists");
     }
 
     public AlreadyExistsException(String message) {
-        super(new DomainRequest(HttpStatus.CONFLICT.toString(), message));
+        super(message);
     }
 
-    public AlreadyExistsException(DomainRequest request) {
-        super(request);
-        this.domainRequest = request;
+    public AlreadyExistsException(String item, String value) {
+        super(MessageFormat.format("{0} {1} already exists", item, value));
     }
 
-    public AlreadyExistsException(String model, String value) {
-        this(new DomainRequest(HttpStatus.CONFLICT.toString(), MessageFormat.format("{0} [{1}] already exists", model, value)));
-    }
-    public DomainRequest getDomainRequest() {
-        return domainRequest;
+    public AlreadyExistsException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

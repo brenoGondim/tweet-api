@@ -1,9 +1,18 @@
 package com.challenge.livesponsor.tweetapi.service;
 
-import com.challenge.livesponsor.tweetapi.model.CampaignMapper;
-import com.challenge.livesponsor.tweetapi.model.dto.CampaignDTO;
-import com.challenge.livesponsor.tweetapi.model.entity.Campaign;
+import com.challenge.livesponsor.tweetapi.exception.NotFoundException;
+import com.challenge.livesponsor.tweetapi.model.campaign.CampaignMapper;
+import com.challenge.livesponsor.tweetapi.model.campaign.CampaignDTO;
+import com.challenge.livesponsor.tweetapi.model.campaign.Campaign;
+import com.challenge.livesponsor.tweetapi.model.campaignuser.CampaignUser;
+import com.challenge.livesponsor.tweetapi.model.tweet.Tweet;
+import com.challenge.livesponsor.tweetapi.model.user.User;
 import com.challenge.livesponsor.tweetapi.repository.ICampaignRepository;
+import com.challenge.livesponsor.tweetapi.repository.ICampaignUserRepository;
+import com.challenge.livesponsor.tweetapi.repository.ITweetRepository;
+import com.challenge.livesponsor.tweetapi.repository.IUserRepository;
+import jakarta.transaction.Transactional;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,11 +21,18 @@ import java.util.List;
 public class CampaignService implements ICampaignService{
 
     private final ICampaignRepository repository;
+    private final ITweetRepository tweetRepository;
+    private final ICampaignUserRepository campaignUserRepository;
+    private final IUserRepository userRepository;
     private final CampaignMapper mapper;
 
-    public CampaignService(ICampaignRepository repository, CampaignMapper mapper) {
+
+    public CampaignService(ICampaignRepository repository, ITweetRepository tweetRepository, CampaignMapper mapper, ICampaignUserRepository campaignUserRepository, IUserRepository userRepository) {
         this.repository = repository;
+        this.tweetRepository = tweetRepository;
         this.mapper = mapper;
+        this.campaignUserRepository = campaignUserRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -25,31 +41,51 @@ public class CampaignService implements ICampaignService{
     }
 
     @Override
-    public CampaignDTO findOneById(String value) {
-        return mapper.toDTO(repository.findOneBy("id", value));
+    public CampaignDTO findOneById(Long id) {
+        return mapper.toDTO(repository.findById(id).orElse(new Campaign()));
     }
 
     @Override
     public void save(CampaignDTO campaign) {
-
-        campaign.setActive(true);
         repository.save(mapper.toEntity(campaign));
     }
 
     @Override
-    public List<CampaignDTO> update(CampaignDTO campaign) {
+    @Transactional
+    public CampaignDTO update(CampaignDTO campaign, Long id) {
+        Campaign oldCampaign = repository.findById(id).orElseThrow(() -> new NotFoundException("Campaign with id", id.toString()));
+        Campaign newCampaign = mapper.toEntity(campaign);
+        BeanUtils.copyProperties(oldCampaign, newCampaign, "slogan");
 
-        Campaign oldCampaignEntity = repository.findOneBy("slogan", campaign.getSlogan());
-        Campaign newCampaignEntity = mapper.toEntity(campaign);
-        newCampaignEntity.setId(oldCampaignEntity.getId());
-
+        handleCampaignPoints(newCampaign);
         //TODO: Temporal
+        return mapper.toDTO(repository.save(newCampaign));
+    }
 
-        return mapper.toDTOList(repository.update(newCampaignEntity.getId(), newCampaignEntity));
+    private void handleCampaignPoints(Campaign newCampaign) {
+        campaignUserRepository.deleteAllByCampaign(newCampaign.getId());
+        List<Tweet> tweetsAfterCampaign = tweetRepository.findAllTweetsAfterDate(newCampaign.getInitialDate());
+
+        tweetsAfterCampaign.forEach(tweet -> {
+            if (tweet.getPayload().contains(newCampaign.getSlogan())) {
+                CampaignUser userAlreadyInCampaign = campaignUserRepository.findByCampaignAndUser(newCampaign.getId(), tweet.getUser());
+                if (userAlreadyInCampaign == null) {
+                    campaignUserRepository.save(new CampaignUser(newCampaign.getId(), tweet.getUser()));
+                }
+            }
+            User user = userRepository.findById(tweet.getUser()).orElseThrow(() -> new NotFoundException("User with id", tweet.getUser().toString()));
+            userUpdatePoints(user);
+        });
+    }
+    public void userUpdatePoints(User user) {
+        int countCampaignByUser = campaignUserRepository.countByUser(user.getId());
+        user.setPoints(countCampaignByUser * 10);
+        userRepository.save(user);
     }
 
     @Override
-    public void delete(String id) {
-        repository.delete(id);
+    public void delete(Long id) {
+        Campaign campaignEntity = repository.findById(id).orElse(new Campaign());
+        repository.delete(campaignEntity);
     }
 }

@@ -1,9 +1,6 @@
 package com.challenge.livesponsor.tweetapi.controller;
 
-import com.challenge.livesponsor.tweetapi.exception.AlreadyExistsException;
-import com.challenge.livesponsor.tweetapi.exception.DomainRequest;
-import com.challenge.livesponsor.tweetapi.model.UserMapper;
-import com.challenge.livesponsor.tweetapi.model.dto.UserDTO;
+import com.challenge.livesponsor.tweetapi.model.user.UserDTO;
 import com.challenge.livesponsor.tweetapi.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +25,7 @@ public class UserController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<UserDTO> getById(@PathVariable String id) {
+    public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findOneById(id));
     }
 
@@ -37,18 +34,8 @@ public class UserController {
         return ResponseEntity.ok(service.findOneByEmail(email));
     }
 
-    @PostMapping
-    public ResponseEntity<String> save(@RequestBody UserDTO user) {
-        try {
-            service.save(user);
-        } catch (AlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-        }
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
     @PutMapping
-    public ResponseEntity<List<UserDTO>> update(@RequestBody UserDTO user) {
+    public ResponseEntity<UserDTO> update(@RequestBody UserDTO user) {
         return ResponseEntity.ok(service.update(user));
     }
 
@@ -57,4 +44,5 @@ public class UserController {
         service.delete(email);
         return ResponseEntity.ok().build();
     }
+    //Implementar testes
 }

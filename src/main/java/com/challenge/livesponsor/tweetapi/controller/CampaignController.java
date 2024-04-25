@@ -1,7 +1,7 @@
 package com.challenge.livesponsor.tweetapi.controller;
 
-import com.challenge.livesponsor.tweetapi.exception.AlreadyExistsException;
-import com.challenge.livesponsor.tweetapi.model.dto.CampaignDTO;
+import com.challenge.livesponsor.tweetapi.model.ApiResponse;
+import com.challenge.livesponsor.tweetapi.model.campaign.CampaignDTO;
 import com.challenge.livesponsor.tweetapi.service.ICampaignService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,7 +26,7 @@ public class CampaignController {
     }
 
     @GetMapping("/id/{id}")
-    public ResponseEntity<CampaignDTO> getById(@PathVariable String id) {
+    public ResponseEntity<CampaignDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(service.findOneById(id));
     }
 
@@ -36,13 +36,14 @@ public class CampaignController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PutMapping
-    public ResponseEntity<List<CampaignDTO>> update(@RequestBody CampaignDTO campaign) {
-        return ResponseEntity.ok(service.update(campaign));
+    @PutMapping("/id/{id}")
+    public ResponseEntity<ApiResponse<CampaignDTO>> update(@RequestBody CampaignDTO campaign, @PathVariable Long id) {
+        CampaignDTO updatedCampaign = service.update(campaign, id);
+        return ResponseEntity.ok(new ApiResponse<>(updatedCampaign, HttpStatus.OK, "Campaign successfully updated!"));
     }
 
     @DeleteMapping("/id/{id}")
-    public ResponseEntity<CampaignDTO> delete(@PathVariable String id) {
+    public ResponseEntity<CampaignDTO> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.ok().build();
     }

@@ -1,9 +1,9 @@
 package com.challenge.livesponsor.tweetapi.service;
 
-import com.challenge.livesponsor.tweetapi.exception.AlreadyExistsException;
-import com.challenge.livesponsor.tweetapi.model.UserMapper;
-import com.challenge.livesponsor.tweetapi.model.dto.UserDTO;
-import com.challenge.livesponsor.tweetapi.model.entity.User;
+import com.challenge.livesponsor.tweetapi.exception.NotFoundException;
+import com.challenge.livesponsor.tweetapi.model.user.UserMapper;
+import com.challenge.livesponsor.tweetapi.model.user.UserDTO;
+import com.challenge.livesponsor.tweetapi.model.user.User;
 import com.challenge.livesponsor.tweetapi.repository.IUserRepository;
 import org.springframework.stereotype.Service;
 
@@ -26,41 +26,27 @@ public class UserService implements IUserService{
     }
 
     @Override
-    public UserDTO findOneById(String value) {
-        return mapper.toDTO(repository.findOneBy("id", value));
+    public UserDTO findOneById(Long value) {
+        return mapper.toDTO(repository.findById(value).orElse(new User()));
     }
 
     @Override
-    public UserDTO findOneByEmail(String value) {
-        return mapper.toDTO(findOneEntityByEmail(value));
+    public UserDTO findOneByEmail(String email) {
+        return mapper.toDTO(repository.findOneByEmail(email).orElse(new User()));
     }
 
     @Override
-    public void save(UserDTO user) {
-        User userEntity = findOneEntityByEmail(user.getEmail());
+    public UserDTO update(UserDTO user) {
+        User oldUser = repository.findOneByEmail(user.getEmail()).orElseThrow(() -> new NotFoundException("User", user.getEmail()));
+        User newUser = mapper.toEntity(user);
+        newUser.setId(oldUser.getId());
 
-        if (userEntity != null) {
-            throw new AlreadyExistsException();
-        }
-        repository.save(mapper.toEntity(user));
-    }
-
-    @Override
-    public List<UserDTO> update(UserDTO user) {
-        User oldUserEntity = findOneEntityByEmail(user.getEmail());
-        User newUserEntity = mapper.toEntity(user);
-        newUserEntity.setId(oldUserEntity.getId());
-
-        return mapper.toDTOList(repository.update(newUserEntity.getId(), newUserEntity));
+        return mapper.toDTO(repository.save(newUser));
     }
 
     @Override
     public void delete(String email) {
-        User userEntity = findOneEntityByEmail(email);
-        repository.delete(userEntity.getId());
-    }
-
-    private User findOneEntityByEmail(String email) {
-        return repository.findOneBy("email", email);
+        User userEntity = repository.findOneByEmail(email).orElse(new User());
+        repository.delete(userEntity);
     }
 }
