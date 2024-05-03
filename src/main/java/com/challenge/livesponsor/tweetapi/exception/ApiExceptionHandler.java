@@ -1,6 +1,5 @@
 package com.challenge.livesponsor.tweetapi.exception;
 
-import com.challenge.livesponsor.tweetapi.model.ApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
